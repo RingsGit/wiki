@@ -23,7 +23,7 @@
                 img(src='/_assets/svg/icon-selective-highlighting.svg')
               v-list-item-content
                 v-list-item-title(v-text='item.title')
-                v-list-item-subtitle.caption(v-text='item.description')
+                v-list-item-subtitle.caption(v-html='item.description')
                 .caption.grey--text(v-text='item.path')
               v-list-item-action
                 v-chip(label, outlined) {{item.locale.toUpperCase()}}

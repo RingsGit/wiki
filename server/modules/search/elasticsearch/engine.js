@@ -135,7 +135,7 @@ module.exports = {
         } catch (err) {
           WIKI.logger.error(`(SEARCH/ELASTICSEARCH) Create Index Error: `, _.get(err, 'meta.body.error', err))
         }
-      } 
+      }
     } catch (err) {
       WIKI.logger.error(`(SEARCH/ELASTICSEARCH) Index Check Error: `, _.get(err, 'meta.body.error', err))
     }
@@ -161,7 +161,17 @@ module.exports = {
           },
           from: 0,
           size: 50,
-          _source: ['title', 'description', 'path', 'locale'],
+          _source: ['title', 'description', 'path', 'locale', 'content'],
+          highlight: {
+            fields: {
+              content: {
+                fragment_size: 150,
+                number_of_fragments: 1,
+                pre_tags: ['<mark>'],
+                post_tags: ['</mark>']
+              }
+            }
+          },
           suggest: {
             suggestions: {
               text: q,
@@ -181,7 +191,8 @@ module.exports = {
           locale: r._source.locale,
           path: r._source.path,
           title: r._source.title,
-          description: r._source.description
+          // description: r._source.description,
+          description: _.get(r, 'highlight.content[0]', '') || _.get(r, 'highlight.title[0]', '') || _.get(r, 'highlight.description[0]', '')
         })),
         suggestions: _.reject(_.get(results, 'suggest.suggestions', []).map(s => _.get(s, 'options[0].text', false)), s => !s),
         totalHits: _.get(results, this.config.apiVersion === '8.x' ? 'hits.total.value' : 'body.hits.total.value', _.get(results, this.config.apiVersion === '8.x' ? 'hits.total' : 'body.hits.total', 0))
