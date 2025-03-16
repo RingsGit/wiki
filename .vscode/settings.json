@@ -12,5 +12,8 @@
   },
   "i18n-ally.localesPaths": [
     "server/locales"
-  ]
+  ],
+  "git.enableSmartCommit": false,
+  "git.autoRepositoryDetection": false,
+  "git.ignoreRebaseWarning": true
 }
