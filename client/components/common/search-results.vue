@@ -23,8 +23,9 @@
                 img(src='/_assets/svg/icon-selective-highlighting.svg')
               v-list-item-content
                 v-list-item-title(v-text='item.title')
-                v-list-item-subtitle.caption(v-html='item.description')
-                .caption.grey--text(v-text='item.path')
+                //v-list-item-subtitle.caption(v-html='item.description')
+                v-list-item-subtitle(v-html='item.description', class="description-text")
+                // .caption.grey--text(v-text='item.path')
               v-list-item-action
                 v-chip(label, outlined) {{item.locale.toUpperCase()}}
             v-divider(v-if='idx < results.length - 1')
@@ -236,6 +237,16 @@ export default {
     .highlighted {
       background: transparent linear-gradient(to bottom, mc('blue', '500'), mc('blue', '700'));
     }
+  }
+
+  .description-text {
+    white-space: normal;
+    word-break: break-word;
+    display: block; // 确保它是块级元素
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 6em; // 可根据需要调整最大高度，6em 约为 3 行
+    line-clamp: unset; // 避免行数限制
   }
 }
 

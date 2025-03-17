@@ -165,7 +165,7 @@ module.exports = {
           highlight: {
             fields: {
               content: {
-                fragment_size: 150,
+                fragment_size: 350,
                 number_of_fragments: 1,
                 pre_tags: ['<mark>'],
                 post_tags: ['</mark>']
