@@ -4,7 +4,8 @@
       .unauthorized-content
         img.animated.fadeIn(src='/_assets/svg/icon-delete-shield.svg', alt='Unauthorized')
         .headline {{$t('unauthorized.title')}}
-        .subtitle-1.mt-3 {{$t('unauthorized.action.' + action)}}
+        //.subtitle-1.mt-3 {{$t('unauthorized.action.' + action)}}
+        .subtitle-1.mt-3 {{'Register with an @sg-micro email to acess this page.'}}
         v-btn.mt-5(href='/login', x-large)
           v-icon(left) mdi-login
           span {{$t('unauthorized.login')}}
