@@ -40,8 +40,13 @@ props:
   analyzer:
     type: String
     title: Analyzer
-    hint: 'The token analyzer in elasticsearch'
-    default: simple
+    hint: 'The token analyzer in Elasticsearch. For Chinese, use "ik_max_word" or "ik_smart".'
+    default: ik_max_word
+    enum:
+      - ik_max_word
+      - ik_smart
+      - simple
+      - standard
     order: 6
   sniffOnStart:
     type: Boolean

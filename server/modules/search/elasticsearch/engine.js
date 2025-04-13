@@ -71,12 +71,12 @@ module.exports = {
           const idxBody = {
             properties: {
               suggest: { type: 'completion' },
-              title: { type: 'text', boost: 10.0 },
-              description: { type: 'text', boost: 3.0 },
-              content: { type: 'text', boost: 1.0 },
+              title: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_max_word' },
+              description: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
+              content: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
               locale: { type: 'keyword' },
               path: { type: 'text' },
-              tags: { type: 'text', boost: 8.0 }
+              tags: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_max_word' }
             }
           }
 
@@ -90,7 +90,7 @@ module.exports = {
                 analysis: {
                   analyzer: {
                     default: {
-                      type: this.config.analyzer
+                      type: 'ik_max_word'
                     }
                   }
                 }
@@ -108,12 +108,12 @@ module.exports = {
           const idxBody = {
             properties: {
               suggest: { type: 'completion' },
-              title: { type: 'text' },
-              description: { type: 'text' },
-              content: { type: 'text' },
+              title: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_max_word' },
+              description: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
+              content: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' },
               locale: { type: 'keyword' },
               path: { type: 'text' },
-              tags: { type: 'text' }
+              tags: { type: 'text', analyzer: 'ik_max_word', search_analyzer: 'ik_smart' }
             }
           }
 
@@ -125,7 +125,7 @@ module.exports = {
                 analysis: {
                   analyzer: {
                     default: {
-                      type: this.config.analyzer
+                      type: 'ik_max_word'
                     }
                   }
                 }
@@ -191,8 +191,10 @@ module.exports = {
           locale: r._source.locale,
           path: r._source.path,
           title: r._source.title,
-          // description: r._source.description,
-          description: _.get(r, 'highlight.content[0]', '') || _.get(r, 'highlight.title[0]', '') || _.get(r, 'highlight.description[0]', '')
+          description: _.get(r, 'highlight.content[0]', '') ||
+                        _.get(r, 'highlight.title[0]', '') ||
+                        _.get(r, 'highlight.description[0]', '') ||
+                        (r._source.content ? r._source.content.substring(0, 200) : '') // 提取文章开头内容
         })),
         suggestions: _.reject(_.get(results, 'suggest.suggestions', []).map(s => _.get(s, 'options[0].text', false)), s => !s),
         totalHits: _.get(results, this.config.apiVersion === '8.x' ? 'hits.total.value' : 'body.hits.total.value', _.get(results, this.config.apiVersion === '8.x' ? 'hits.total' : 'body.hits.total', 0))
