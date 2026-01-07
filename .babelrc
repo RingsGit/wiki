@@ -19,7 +19,7 @@
     "@babel/plugin-proposal-throw-expressions",
     [
       "prismjs", {
-        "languages": ["clike", "markup"],
+        "languages": ["clike", "markup", "wolfram"],
         "plugins": ["line-numbers", "autoloader", "normalize-whitespace", "copy-to-clipboard", "toolbar"],
         "theme": "twilight",
         "css": true

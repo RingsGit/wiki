@@ -32,13 +32,13 @@
           outlined
           color='blue-grey darken-2'
           :background-color='$vuetify.theme.dark ? `grey darken-5` : `white`'
-          :placeholder='$t(`common:comments.fieldEmail`)'
+          :placeholder="`${$t('common:comments.fieldEmail')} (private — not displayed with your comment)`"
           hide-details
           type='email'
           dense
           autocomplete='email'
           v-model='guestEmail'
-          :aria-label='$t(`common:comments.fieldEmail`)'
+          :aria-label="`${$t('common:comments.fieldEmail')} (private)`"
         )
     .d-flex.align-center.pt-3(v-if='permissions.write')
       v-icon.mr-1(color='blue-grey') mdi-language-markdown-outline
