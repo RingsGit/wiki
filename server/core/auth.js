@@ -268,7 +268,8 @@ module.exports = {
                 break
               case 'TAG':
                 _.get(page, 'tags', []).forEach(tag => {
-                  if (tag.tag === rule.path) {
+                  // Support tags as objects ({ tag: 'slug' }) or simple strings ('slug')
+                  if ((_.isString(tag) && tag === rule.path) || (_.isObject(tag) && tag.tag === rule.path)) {
                     checkState = this._applyPageRuleSpecificity({
                       rule,
                       checkState,

@@ -161,7 +161,7 @@ module.exports = {
           },
           from: 0,
           size: 50,
-          _source: ['title', 'description', 'path', 'locale', 'content'],
+          _source: ['title', 'description', 'path', 'locale', 'content', 'tags'],
           highlight: {
             fields: {
               content: {
@@ -191,6 +191,7 @@ module.exports = {
           locale: r._source.locale,
           path: r._source.path,
           title: r._source.title,
+          tags: r._source.tags || [],
           description: _.get(r, 'highlight.content[0]', '') ||
                         _.get(r, 'highlight.title[0]', '') ||
                         _.get(r, 'highlight.description[0]', '') ||
@@ -212,7 +213,7 @@ module.exports = {
   async buildTags(id) {
     const tags = await WIKI.models.pages.query().findById(id).select('*').withGraphJoined('tags')
     return (tags.tags && tags.tags.length > 0) ? tags.tags.map(function (tag) {
-      return tag.title
+      return tag.tag
     }) : []
   },
   /**

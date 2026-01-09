@@ -135,7 +135,8 @@ module.exports = {
       results = _.filter(results, r => {
         return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
           path: r.path,
-          locale: r.locale
+          locale: r.locale,
+          tags: r.tags
         })
       }).map(r => ({
         ...r,
@@ -170,11 +171,11 @@ module.exports = {
         throw new WIKI.Error.PageNotFound()
       }
     },
-    async singleByPath(obj, args, context, info) {
+    async singleByPath (obj, args, context, info) {
       let page = await WIKI.models.pages.getPageFromDb({
         path: args.path,
-        locale: args.locale,
-      });
+        locale: args.locale
+      })
       if (page) {
         if (WIKI.auth.checkAccess(context.req.user, ['manage:pages', 'delete:pages'], {
           path: page.path,
@@ -198,50 +199,78 @@ module.exports = {
      * FETCH TAGS
      */
     async tags (obj, args, context, info) {
-      const pages = await WIKI.models.pages.query()
-        .column([
-          'path',
-          { locale: 'localeCode' }
-        ])
-        .withGraphJoined('tags')
-      const allTags = _.filter(pages, r => {
-        return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
-          path: r.path,
-          locale: r.locale
-        })
-      }).flatMap(r => r.tags)
-      return _.orderBy(_.uniqBy(allTags, 'id'), ['tag'], ['asc'])
+      try {
+        const pages = await WIKI.models.pages.query()
+          .column([
+            'pages.id',
+            'path',
+            { locale: 'localeCode' }
+          ])
+          .withGraphJoined('tags')
+
+        // Filter pages based on user permissions - only return tags from accessible pages
+        const allTags = _.filter(pages, r => {
+          // Ensure page has required fields for permission check
+          if (!r || !r.path || !r.locale) {
+            return false
+          }
+          return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
+            path: r.path,
+            locale: r.locale,
+            tags: r.tags
+          })
+        }).flatMap(r => r.tags)
+
+        return _.orderBy(_.uniqBy(allTags, 'id'), ['tag'], ['asc'])
+      } catch (err) {
+        WIKI.logger.error('Error in PageQuery.tags resolver: ', err)
+        return []
+      }
     },
     /**
      * SEARCH TAGS
      */
     async searchTags (obj, args, context, info) {
       const query = _.trim(args.query)
-      const pages = await WIKI.models.pages.query()
-        .column([
-          'path',
-          { locale: 'localeCode' }
-        ])
-        .withGraphJoined('tags')
-        .modifyGraph('tags', builder => {
-          builder.select('tag')
-        })
-        .modify(queryBuilder => {
-          queryBuilder.andWhere(builderSub => {
-            if (WIKI.config.db.type === 'postgres') {
-              builderSub.where('tags.tag', 'ILIKE', `%${query}%`)
-            } else {
-              builderSub.where('tags.tag', 'LIKE', `%${query}%`)
-            }
+      try {
+        const pages = await WIKI.models.pages.query()
+          .column([
+            'pages.id',
+            'path',
+            { locale: 'localeCode' }
+          ])
+          .withGraphJoined('tags')
+          .modifyGraph('tags', builder => {
+            builder.select('tag')
           })
-        })
-      const allTags = _.filter(pages, r => {
-        return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
-          path: r.path,
-          locale: r.locale
-        })
-      }).flatMap(r => r.tags).map(t => t.tag)
-      return _.uniq(allTags).slice(0, 5)
+          .modify(queryBuilder => {
+            queryBuilder.andWhere(builderSub => {
+              if (WIKI.config.db.type === 'postgres') {
+                builderSub.where('tags.tag', 'ILIKE', `%${query}%`)
+              } else {
+                builderSub.where('tags.tag', 'LIKE', `%${query}%`)
+              }
+            })
+          })
+
+        // Filter pages based on user permissions - only return tags from accessible pages
+        const allTags = _.filter(pages, r => {
+          // Ensure page has required fields for permission check
+          if (!r || !r.path || !r.locale) {
+            return false
+          }
+          return WIKI.auth.checkAccess(context.req.user, ['read:pages'], {
+            path: r.path,
+            locale: r.locale,
+            tags: r.tags
+          })
+        }).flatMap(r => r.tags).map(t => t.tag)
+
+        return _.uniq(allTags).slice(0, 5)
+      } catch (err) {
+        WIKI.logger.error('Error in PageQuery.searchTags resolver: ', err)
+        return []
+      }
     },
     /**
      * FETCH PAGE TREE
