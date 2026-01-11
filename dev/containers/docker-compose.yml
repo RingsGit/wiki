@@ -52,6 +52,7 @@ services:
       - ../..:/wiki
       - /wiki/node_modules
       - /wiki/.git
+      - 'D:/DockerServer/docker-wikijs/ob2wiki:/mnt/ob2wiki'
 
 
 volumes:
